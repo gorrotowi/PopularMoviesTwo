@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">PopularMoviesTwo</string>
+
+    <string name="title_activity_movie_detail">Movie Detail</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="img_item_descr">img movie item</string>
+    <string name="base_img_url">http://image.tmdb.org/t/p/w342/</string>
+    <string name="base_url_api">http://api.themoviedb.org/3/discover/movie?</string>
+    <string name="base_url_api_movie">http://api.themoviedb.org/3/movie/</string>
+    <string name="base_url_youtube">https://www.youtube.com/watch?v=</string>
+    <string name="api_key">api_key=</string>
+    <string name="query_popularity">sort_by=popularity.desc</string>
+    <string name="query_mostVoted">sort_by=vote_count.desc</string>
+    <string name="endopoint_video">/videos?</string>
+    <string name="endopoint_review">/reviews?</string>
+    <string name="action_popularity">Most popular</string>
+    <string name="action_voted">highest rated</string>
+    <string name="icon_movie">&#xf008;</string>
+    <string name="icon_play">&#xf144;</string>
+    <string name="icon_heart">&#xf004;</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="OverView">Overview</string>
+    <string name="trailer">Trailers:</string>
+    <string name="reviews">Reviews:</string>
+    <string name="action_favorites">favorites</string>
+</resources>
