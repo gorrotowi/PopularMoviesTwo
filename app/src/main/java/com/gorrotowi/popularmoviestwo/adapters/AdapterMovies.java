@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,8 +72,6 @@ public class AdapterMovies extends RecyclerView.Adapter<AdapterMovies.MoviewView
                         try {
                             Realm realm = Realm.getInstance(context);
                             RealmResults<Movie> movies = realm.where(Movie.class).contains("id", itemImgMovies.get(position).getJsonMovie().getString("id")).findAll();
-                            Log.e("moviesize", movies.size() + "");
-                            Log.e("position", position + "");
                             context.startActivity(new Intent(context, MovieDetailActivity.class)
                                     .putExtra("jsondata", itemImgMovies.get(position).getJsonMovie().toString())
                                     .putExtra("jsontrailer", movies.get(0).getJsonTrailer())

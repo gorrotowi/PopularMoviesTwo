@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -169,7 +168,7 @@ public class MoviesFragment extends Fragment {
                 return true;
             case R.id.action_favorites:
 //                    getMovies(getString(R.string.query_mostVoted));
-                    retriveStorageMovies();
+                retriveStorageMovies();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

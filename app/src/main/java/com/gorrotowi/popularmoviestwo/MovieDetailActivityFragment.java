@@ -3,7 +3,6 @@ package com.gorrotowi.popularmoviestwo;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -139,10 +138,8 @@ public class MovieDetailActivityFragment extends Fragment {
         try {
             jsonMovie = new JSONObject(json);
             if (ImgMovieSingleton.getImgMovie() == null) {
-                Log.e("bitmap url", ImgMovieSingleton.getImgMovie() + "");
                 Picasso.with(getActivity()).load(getString(R.string.base_img_url) + jsonMovie.getString("poster_path")).into(imgMovie);
             } else {
-                Log.e("bitmap", ImgMovieSingleton.getImgMovie() + "");
                 imgMovie.setImageBitmap(ImgMovieSingleton.getImgMovie());
                 ImgMovieSingleton.setImgMovie(null);
             }
