@@ -1,7 +1,9 @@
 package com.gorrotowi.popularmoviestwo;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.gorrotowi.popularmoviestwo.adapters.AdapterReviewMovie;
 import com.gorrotowi.popularmoviestwo.adapters.AdapterTrailerMovie;
+import com.gorrotowi.popularmoviestwo.entitys.ImgMovieSingleton;
 import com.gorrotowi.popularmoviestwo.entitys.ItemReviewMovie;
 import com.gorrotowi.popularmoviestwo.entitys.ItemTrailerMovie;
 import com.gorrotowi.popularmoviestwo.entitys.Movie;
@@ -29,9 +32,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -76,33 +81,51 @@ public class MovieDetailActivityFragment extends Fragment {
             scrollViewContent.setVisibility(View.VISIBLE);
             relativeLayoutContainerTitle.setVisibility(View.VISIBLE);
             txtIcon.setVisibility(View.GONE);
-            try {
-                jsonMovie = new JSONObject(getArguments().getString("jsondata"));
-                Picasso.with(getActivity()).load(getString(R.string.base_img_url) + jsonMovie.getString("poster_path")).into(imgMovie);
-                txtTitle.setText(jsonMovie.getString("title"));
-                txtDate.setText(jsonMovie.getString("release_date"));
-                txtRate.setText(jsonMovie.getString("vote_average") + "/10");
-                txtDesc.setText(jsonMovie.getString("overview"));
-                getDataMovie(jsonMovie.getString("id"), getString(R.string.endopoint_video));
-                getDataMovie(jsonMovie.getString("id"), getString(R.string.endopoint_review));
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (getArguments().getString("jsontrailer") == null) {
+                parseMovieDetail(getArguments().getString("jsondata"));
+                try {
+                    getDataMovie(jsonMovie.getString("id"), getString(R.string.endopoint_video));
+                    getDataMovie(jsonMovie.getString("id"), getString(R.string.endopoint_review));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                parseMovieDetail(getArguments().getString("jsondata"));
+                try {
+                    parseTrailer(new JSONObject(getArguments().getString("jsontrailer")));
+                    parseReviews(new JSONObject(getArguments().getString("jsonreview")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         txtFavMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                imgMovie.setDrawingCacheEnabled(true);
+                imgMovie.buildDrawingCache();
+                Bitmap bitmap = imgMovie.getDrawingCache();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+
                 try {
                     Realm realm = Realm.getInstance(getActivity());
-                    realm.beginTransaction();
-                    Movie movie = realm.createObject(Movie.class);
-                    movie.setJsonMovie(getArguments().getString("jsondata"));
-                    movie.setJsonTrailer(jsonTrailer.toString());
-                    movie.setJsonReviewl(jsonReview.toString());
-                    movie.setId(jsonMovie.getString("id"));
-                    realm.commitTransaction();
-                    Toast.makeText(getActivity(), "Add to Favorites", Toast.LENGTH_SHORT).show();
+                    RealmResults<Movie> movies = realm.where(Movie.class).equalTo("id", jsonMovie.getString("id")).findAll();
+                    if (movies.size() == 0) {
+                        realm.beginTransaction();
+                        Movie movie = realm.createObject(Movie.class);
+                        movie.setJsonMovie(getArguments().getString("jsondata"));
+                        movie.setJsonTrailer(jsonTrailer.toString());
+                        movie.setJsonReviewl(jsonReview.toString());
+                        movie.setId(jsonMovie.getString("id"));
+                        movie.setImgPoster(stream.toByteArray());
+                        realm.commitTransaction();
+                        Toast.makeText(getActivity(), "Add to Favorites", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "This film has already been added to Favorites", Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -110,6 +133,27 @@ public class MovieDetailActivityFragment extends Fragment {
         });
 
         return viewRoot;
+    }
+
+    private void parseMovieDetail(String json) {
+        try {
+            jsonMovie = new JSONObject(json);
+            if (ImgMovieSingleton.getImgMovie() == null) {
+                Log.e("bitmap url", ImgMovieSingleton.getImgMovie() + "");
+                Picasso.with(getActivity()).load(getString(R.string.base_img_url) + jsonMovie.getString("poster_path")).into(imgMovie);
+            } else {
+                Log.e("bitmap", ImgMovieSingleton.getImgMovie() + "");
+                imgMovie.setImageBitmap(ImgMovieSingleton.getImgMovie());
+                ImgMovieSingleton.setImgMovie(null);
+            }
+            txtTitle.setText(jsonMovie.getString("title"));
+            txtDate.setText(jsonMovie.getString("release_date"));
+            txtRate.setText(jsonMovie.getString("vote_average") + "/10");
+            txtDesc.setText(jsonMovie.getString("overview"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void getDataMovie(String id, final String query) {

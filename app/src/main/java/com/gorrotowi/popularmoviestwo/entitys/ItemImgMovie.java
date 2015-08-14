@@ -8,11 +8,25 @@ import org.json.JSONObject;
 public class ItemImgMovie {
 
     String imgpath;
+    byte[] imgBAr;
     JSONObject jsonMovie;
 
     public ItemImgMovie(String imgpath, JSONObject jsonMovie) {
         this.imgpath = imgpath;
         this.jsonMovie = jsonMovie;
+    }
+
+    public ItemImgMovie(byte[] imgBAr, JSONObject jsonMovie) {
+        this.imgBAr = imgBAr;
+        this.jsonMovie = jsonMovie;
+    }
+
+    public byte[] getImgBAr() {
+        return imgBAr;
+    }
+
+    public void setImgBAr(byte[] imgBAr) {
+        this.imgBAr = imgBAr;
     }
 
     public String getImgpath() {

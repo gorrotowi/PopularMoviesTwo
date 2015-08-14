@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.gorrotowi.popularmoviestwo.adapters.AdapterMovies;
 import com.gorrotowi.popularmoviestwo.entitys.ItemImgMovie;
+import com.gorrotowi.popularmoviestwo.entitys.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +32,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MoviesFragment extends Fragment {
@@ -40,6 +45,7 @@ public class MoviesFragment extends Fragment {
     JsonObjectRequest jsonObjectRequest;
     int lastreq = 0;
     boolean isAlone;
+    List<ItemImgMovie> item;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -92,7 +98,7 @@ public class MoviesFragment extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    List<ItemImgMovie> item = new ArrayList<>();
+                    item = new ArrayList<>();
                     JSONArray arrayMovies = response.getJSONArray("results");
                     for (int i = 0; i < arrayMovies.length(); i++) {
                         item.add(new ItemImgMovie(arrayMovies.getJSONObject(i).getString("poster_path"), arrayMovies.getJSONObject(i)));
@@ -123,6 +129,21 @@ public class MoviesFragment extends Fragment {
     }
 
     private void retriveStorageMovies() {
+        Realm realm = Realm.getInstance(getActivity());
+        RealmResults<Movie> movies = realm.where(Movie.class).findAll();
+        item.clear();
+        for (int i = 0; i < movies.size(); i++) {
+            try {
+                JSONObject jsonMovie = new JSONObject(movies.get(i).getJsonMovie());
+                item.add(new ItemImgMovie(movies.get(i).getImgPoster(), jsonMovie));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        rcMovies.removeAllViews();
+        adapterMovies = new AdapterMovies(item, getActivity(), isAlone, getFragmentManager());
+        rcMovies.setAdapter(adapterMovies);
+        rcMovies.setItemAnimator(new DefaultItemAnimator());
 
     }
 
@@ -147,10 +168,8 @@ public class MoviesFragment extends Fragment {
                 }
                 return true;
             case R.id.action_favorites:
-                if (lastreq == 0) {
 //                    getMovies(getString(R.string.query_mostVoted));
                     retriveStorageMovies();
-                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
